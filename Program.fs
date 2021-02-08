@@ -1,25 +1,25 @@
 namespace PigOfPigs
 
-open System
-open System.Collections.Generic
-open System.IO
-open System.Linq
-open System.Threading.Tasks
-open Microsoft.AspNetCore
 open Microsoft.AspNetCore.Hosting
-open Microsoft.Extensions.Configuration
+open Microsoft.Extensions.DependencyInjection
 open Microsoft.Extensions.Hosting
-open Microsoft.Extensions.Logging
+open PigOfPigs.Data
 open Serilog
 open Serilog.Events
 
 module Program =
 
-    let CreateHostBuilder args =
+    let createHostBuilder args =
         Host
             .CreateDefaultBuilder(args)
             .UseSerilog()
             .ConfigureWebHostDefaults(fun webBuilder -> webBuilder.UseStartup<Startup>() |> ignore)
+
+    let createDbIfNotExists (host : IHost) =
+        use scope = host.Services.CreateScope()
+        let services = scope.ServiceProvider
+        let context = services.GetRequiredService<PigContext>()
+        DbInitializer.ensureCreated context
 
     [<EntryPoint>]
     let main args =
@@ -33,7 +33,9 @@ module Program =
 
         try
             try
-                CreateHostBuilder(args).Build().Run()
+                let host = createHostBuilder(args).Build()
+                createDbIfNotExists host
+                host.Run()
                 0
             with exc ->
                 Log.Fatal(exc, "Host terminated unexpectedly")
