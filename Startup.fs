@@ -39,6 +39,7 @@ type Startup(configuration: IConfiguration) =
                 options.DefaultScheme <- CookieAuthenticationDefaults.AuthenticationScheme
             )
             .AddCookie(fun options ->
+                options.Cookie.SameSite <- SameSiteMode.None
                 options.LoginPath <- PathString.op_Implicit "/account/google-login"
             )
             .AddGoogle(fun options ->
