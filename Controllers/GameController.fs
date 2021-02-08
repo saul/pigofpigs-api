@@ -87,9 +87,9 @@ type GameController (logger : ILogger<GameController>, pigContext : PigContext) 
                     game.Players |> Seq.map (fun p -> p.Scores.[i]) |> Seq.max
             |]
 
-        let toPlayerResult (player : CreateGamePlayer) =
+        let toPlayerResultAsync (createPlayer : CreateGamePlayer) =
             let finalScore, reverseRoundPoints =
-                player.Scores
+                createPlayer.Scores
                 |> Seq.indexed
                 |> Seq.fold
                     (fun (scoreLastRound, points) (i, scoreThisRound) ->
@@ -103,22 +103,29 @@ type GameController (logger : ILogger<GameController>, pigContext : PigContext) 
                     )
                     (0, [])
 
-            PlayerResult(
-                Player=Player(Name=player.Name),
-                FinalScore=finalScore,
-                RoundPoints=(reverseRoundPoints |> Seq.rev |> Array.ofSeq)
-            )
+            task {
+                let! player = pigContext.Players.FirstOrDefaultAsync(fun p -> p.Name = createPlayer.Name)
+                return
+                    PlayerResult(
+                        Player=(if isNull player then Player(Name=createPlayer.Name) else player),
+                        FinalScore=finalScore,
+                        RoundPoints=(reverseRoundPoints |> Seq.rev |> Array.ofSeq)
+                    )
+            }
+
+        let! playerResults =
+            Task.WhenAll [|
+                for player in game.Players ->
+                    for score in player.Scores do
+                        if score < 0 then failwithf "Invalid score %d for player %s" score player.Name
+                    toPlayerResultAsync player
+            |]
 
         let game =
             Game(
                 Title=game.Title,
                 Date=game.Date,
-                Results=[|
-                    for player in game.Players ->
-                        for score in player.Scores do
-                            if score < 0 then failwithf "Invalid score %d for player %s" score player.Name
-                        toPlayerResult player
-                |]
+                Results=playerResults
             )
 
         game

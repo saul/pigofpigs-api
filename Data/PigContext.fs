@@ -23,6 +23,11 @@ type PigContext(options : PigContext DbContextOptions) =
     member this.RoundPoints with get() = this.roundPoints and set(v) = this.roundPoints <- v
 
     override _.OnModelCreating(modelBuilder) =
-        modelBuilder.Entity<Player>().ToTable("Player") |> ignore
+        modelBuilder.Entity<Player>(fun e ->
+            e.ToTable("Player") |> ignore
+            e.Property(fun p -> p.Name).HasColumnType("TEXT COLLATE NOCASE") |> ignore
+            e.HasIndex(fun p -> p.Name :> obj).IsUnique() |> ignore
+        ) |> ignore
+
         modelBuilder.Entity<PlayerResult>().ToTable("PlayerResult") |> ignore
         modelBuilder.Entity<Game>().ToTable("Game") |> ignore
