@@ -47,7 +47,3 @@ type AccountController () =
                 Email = email.Value
             |}
         ) :> _
-
-    [<HttpGet; Authorize>]
-    member this.IsAdmin() =
-        this.Ok({| IsAdmin = this.User.IsAdmin() |})
