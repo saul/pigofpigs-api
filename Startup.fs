@@ -55,7 +55,6 @@ type Startup(configuration: IConfiguration) =
             app.UseDeveloperExceptionPage() |> ignore
 
         app
-            .UseHttpsRedirection()
             .UseRouting()
             .UseCors()
             .UseAuthentication()
