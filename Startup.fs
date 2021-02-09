@@ -4,6 +4,7 @@ open Microsoft.AspNetCore.Authentication.Cookies
 open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Hosting
 open Microsoft.AspNetCore.Http
+open Microsoft.AspNetCore.HttpOverrides
 open Microsoft.Extensions.Configuration
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.Extensions.Hosting
@@ -53,6 +54,12 @@ type Startup(configuration: IConfiguration) =
     member _.Configure(app: IApplicationBuilder, env: IWebHostEnvironment) : unit =
         if env.IsDevelopment() then
             app.UseDeveloperExceptionPage() |> ignore
+
+        ForwardedHeadersOptions(
+            ForwardedHeaders=(ForwardedHeaders.XForwardedFor ||| ForwardedHeaders.XForwardedProto)
+        )
+        |> app.UseForwardedHeaders
+        |> ignore
 
         app
             .UseRouting()
