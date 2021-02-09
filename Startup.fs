@@ -15,6 +15,8 @@ type Startup(configuration: IConfiguration) =
 
     // This method gets called by the runtime. Use this method to add services to the container.
     member _.ConfigureServices(services: IServiceCollection) : unit =
+        services.AddLettuceEncrypt() |> ignore
+
         services.AddControllers() |> ignore
 
         services.AddDbContext<PigContext>(fun options ->
