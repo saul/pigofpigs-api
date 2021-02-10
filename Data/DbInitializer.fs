@@ -19,6 +19,7 @@ module DbInitializer =
                 PlayerResult(
                     Player=Player(Name="Saul"),
                     FinalScore=123,
+                    Winner=true,
                     RoundPoints=[|
                         RoundPoints(Round=1, Points=0, TrailingBy=0) // 0
                         RoundPoints(Round=2, Points=0, TrailingBy=11) // 0
@@ -35,6 +36,7 @@ module DbInitializer =
                 PlayerResult(
                     Player=Player(Name="Josh"),
                     FinalScore=98,
+                    Winner=false,
                     RoundPoints=[|
                         RoundPoints(Round=1, Points=0, TrailingBy=0) // 0
                         RoundPoints(Round=2, Points=11, TrailingBy=0) // 11

@@ -2,9 +2,7 @@
 
 open System
 open System.ComponentModel.DataAnnotations
-open System.Security.Claims
 open System.Threading.Tasks
-open Microsoft.AspNetCore.Authorization
 open Microsoft.AspNetCore.Mvc
 open Microsoft.Extensions.Logging
 open PigOfPigs
@@ -19,7 +17,7 @@ type CreateGamePlayer =
         [<Required>]
         Name : string
 
-        [<MinLength 10; MaxLength 10>]
+        [<MinLength 10>]
         Scores : int[]
     }
 
@@ -81,11 +79,17 @@ type GameController (logger : ILogger<GameController>, pigContext : PigContext) 
             return this.StatusCode(403, "You are not allowed to add new games") :> _
         else
 
+        let rounds = game.Players |> Seq.map (fun p -> p.Scores.Length) |> Seq.max
+
         let maxRoundScores =
             [|
-                for i in 0..9 ->
-                    game.Players |> Seq.map (fun p -> p.Scores.[i]) |> Seq.max
+                for i in 0..rounds-1 ->
+                    game.Players
+                    |> Seq.map (fun p -> p.Scores.[i])
+                    |> Seq.max
             |]
+
+        let winningPoints = Array.last maxRoundScores
 
         let toPlayerResultAsync (createPlayer : CreateGamePlayer) =
             let finalScore, reverseRoundPoints =
@@ -109,6 +113,7 @@ type GameController (logger : ILogger<GameController>, pigContext : PigContext) 
                     PlayerResult(
                         Player=(if isNull player then Player(Name=createPlayer.Name) else player),
                         FinalScore=finalScore,
+                        Winner=(finalScore = winningPoints),
                         RoundPoints=(reverseRoundPoints |> Seq.rev |> Array.ofSeq)
                     )
             }

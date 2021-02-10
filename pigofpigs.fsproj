@@ -12,6 +12,7 @@
     <Compile Include="Controllers\LeaderboardController.fs" />
     <Compile Include="Controllers\GameController.fs" />
     <Compile Include="Controllers\AccountController.fs" />
+    <Compile Include="Controllers\PlayerController.fs" />
     <Compile Include="Startup.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

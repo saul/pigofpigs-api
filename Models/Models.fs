@@ -14,6 +14,9 @@ type PlayerResult () =
     /// Sum of round score points
     member val FinalScore : int = 0 with get, set
 
+    /// Whether this player won the game
+    member val Winner : bool = false with get, set
+
     member val RoundPoints : RoundPoints ICollection = null with get, set
     member val Player : Player = null with get, set
 
