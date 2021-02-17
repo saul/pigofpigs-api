@@ -21,6 +21,6 @@ type ClaimsPrincipalExtensions () =
 
         [
             "saul.rennison@gmail.com"
-            "joshuttley@googlemail.com"
+            "joshuttley@gmail.com"
         ]
         |> List.contains emailClaim.Value
