@@ -13,6 +13,7 @@ type PlayerPosition =
         GamesWon : int
         WinRatio : float
         AverageScore : int
+        HighestScore : int
     }
 
 [<ApiController>]
@@ -33,7 +34,8 @@ type PlayerController (pigContext : PigContext) =
                         GamesWon = gamesWon
                         WinRatio = float gamesWon / float gamesPlayed
                         AverageScore = int (p.PlayedGames.Average(fun g -> g.FinalScore))
+                        HighestScore = p.PlayedGames.Max(fun g -> g.FinalScore)
                     }
             }
-        q.OrderByDescending(fun p -> p.WinRatio)
+        q.OrderByDescending(fun p -> p.HighestScore)
             .ToList()
