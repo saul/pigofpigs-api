@@ -1,6 +1,7 @@
 ﻿namespace PigOfPigs.Controllers
 
 open System
+open System.Linq
 open System.ComponentModel.DataAnnotations
 open System.Threading.Tasks
 open Microsoft.AspNetCore.Mvc
@@ -69,6 +70,34 @@ type GameController (logger : ILogger<GameController>, pigContext : PigContext) 
                         { Name = pr.Player.Name; Scores = scores }
                 |]
             }) :> _
+    }
+
+    [<HttpGet>]
+    member this.GetGames() = task {
+        let! games =
+            pigContext.Games
+                .Include(fun g -> g.Results :> _ seq)
+                    .ThenInclude(fun (pr : PlayerResult) -> pr.Player)
+                .OrderByDescending(fun g -> g.ID)
+                .ToListAsync()
+
+        return this.Ok(
+            games
+            |> Seq.map (fun g ->
+                {|
+                    Id = g.ID
+                    Title = g.Title
+                    Date = g.Date
+                    Players =
+                        g.Results
+                        |> Seq.sortByDescending (fun pr -> pr.FinalScore)
+                        |> Seq.map (fun pr -> {|
+                            Name = pr.Player.Name
+                            Score = pr.FinalScore
+                        |})
+                |}
+            )
+        )
     }
 
     [<HttpPost>]
