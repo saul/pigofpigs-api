@@ -124,6 +124,7 @@ type LeaderboardController (logger : ILogger<LeaderboardController>, pigContext 
                     .ThenInclude(fun x -> x.Game)
                 .Include(fun x -> x.PlayerResult)
                     .ThenInclude(fun x -> x.Player)
+                .Take(10)
                 .ToListAsync()
 
         return
